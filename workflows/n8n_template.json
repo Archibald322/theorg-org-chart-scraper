@@ -1,0 +1,80 @@
+{
+  "name": "Enrich B2B Target Accounts with The Org Executive Org Charts to Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Daily Account Enrichment Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "actorId": "moneygain/theorg-org-chart-scraper",
+        "runInput": "={\n  \"companySlugs\": [\"openai\", \"stripe\", \"airbnb\"],\n  \"maxMembersPerCompany\": 25,\n  \"maxItems\": 50\n}"
+      },
+      "id": "2",
+      "name": "Run The Org Org Chart Scraper",
+      "type": "n8n-nodes-base.apify",
+      "typeVersion": 1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "OrgChart_Decision_Makers",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData"
+        }
+      },
+      "id": "3",
+      "name": "Save Executive Leads to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [700, 300]
+    }
+  ],
+  "connections": {
+    "Daily Account Enrichment Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run The Org Org Chart Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run The Org Org Chart Scraper": {
+      "main": [
+        [
+          {
+            "node": "Save Executive Leads to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
